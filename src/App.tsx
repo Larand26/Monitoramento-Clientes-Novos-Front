@@ -1,7 +1,21 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Home } from "./pages/Home";
+import { Dashboards } from "./pages/DashBoards";
+import { Clients } from "./pages/Clients";
+import { Login } from "./pages/Login";
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      oi
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        <Route>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboards" element={<Dashboards />} />
+          <Route path="/clients" element={<Clients />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
