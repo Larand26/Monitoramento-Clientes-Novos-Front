@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-::root {
+:root {
   --primary: #38bdf8;
   --bg-page: #0f172a;
   --bg-card: #1e293b;

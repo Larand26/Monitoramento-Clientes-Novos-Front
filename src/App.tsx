@@ -4,6 +4,8 @@ import { Dashboards } from "./pages/DashBoards";
 import { Clients } from "./pages/Clients";
 import { Login } from "./pages/Login";
 
+import "./styles/app.css";
+
 export default function App() {
   return (
     <BrowserRouter>
