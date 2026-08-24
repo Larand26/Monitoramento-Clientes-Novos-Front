@@ -5,10 +5,10 @@ export default function NavBar() {
     <>
       <nav className="bg-card py-2 px-4 flex justify-between items-center">
         <div>
-          <img src={isoLogo} alt="Logo" className="w-20" />
+          <img src={isoLogo} alt="Logo" className="w-15" />
         </div>
         <div>
-          <ul className="flex gap-5">
+          <ul className="flex gap-10">
             <li>
               <a href="" className="text-main hover:text-gray-300">
                 Home
