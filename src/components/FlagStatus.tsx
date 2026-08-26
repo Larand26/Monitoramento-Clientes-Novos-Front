@@ -2,7 +2,8 @@ export default function FlagStatus(props: {
   status: "IN_CRM" | "LOST" | "SUCCESS";
   className?: string;
 }) {
-  const styleText = "px-2 py-1 rounded-full text-xs font-semibold";
+  const styleText =
+    "px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap uppercase";
   return (
     <div
       className={`bg-success/10 text-center ${styleText} ${props.className}`}
