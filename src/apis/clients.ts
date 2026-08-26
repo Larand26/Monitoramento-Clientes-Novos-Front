@@ -13,13 +13,29 @@ interface ResponseData {
   };
 }
 
-export async function getClients(): Promise<ResponseData> {
+interface filterGetClients {
+  status?: "IN_CRM" | "LOST" | "SUCCESS";
+  cnpj?: string;
+  created_start?: string;
+  created_end?: string;
+  updated_start?: string;
+  updated_end?: string;
+  name?: string;
+  seller_id?: number;
+  page?: number;
+  limit?: number;
+}
+
+export async function getClients(
+  filters: filterGetClients,
+): Promise<ResponseData> {
   try {
     const response = await axios.get(`${config.api.host}/api/v1/get-clients`, {
       headers: {
         Authorization: `Bearer ${config.api.token}`,
         "Content-Type": "application/json",
       },
+      params: filters,
     });
     return response.data;
   } catch (error) {
