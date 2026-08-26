@@ -9,4 +9,5 @@ export interface Client {
   status: "IN_CRM" | "LOST" | "SUCCESS";
   created_at: string;
   updated_at: string;
+  projected_profit: number;
 }
