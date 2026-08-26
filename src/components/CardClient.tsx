@@ -1,12 +1,13 @@
 import type { Client } from "../interfaces/client.interface";
 
+import FlagStatus from "./FlagStatus";
+
 import * as utils from "../utils/utils";
 
 export default function CardClient(props: {
   client: Client;
   onClick?: () => void;
 }) {
-  // items-center garante que se uma fonte for maior, elas fiquem alinhadas ao centro
   const style = "w-full flex justify-between gap-2 items-center";
 
   const p = "text-muted text-sm whitespace-nowrap";
@@ -15,13 +16,14 @@ export default function CardClient(props: {
 
   return (
     <div
-      className="bg-card rounded-lg shadow-md p-4 w-80 cursor-pointer"
+      className="bg-card rounded-lg shadow-md p-4 w-80 cursor-pointer relative"
       onClick={props.onClick}
     >
-      <div className="card-header pb-2">
+      <div className="card-header pb-2 flex justify-between items-center gap-2">
         <h2 className="font-title text-main text-2xl truncate">
           {props.client.name}
         </h2>
+        <FlagStatus status={props.client.status} />
       </div>
       <hr className="border-muted/20 mb-3" />
       <div className="card-content flex flex-col gap-1">
