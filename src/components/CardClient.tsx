@@ -1,5 +1,7 @@
 import type { Client } from "../interfaces/client.interface";
 
+import * as utils from "../utils/utils";
+
 export default function CardClient(props: {
   client: Client;
   onClick?: () => void;
@@ -10,13 +12,6 @@ export default function CardClient(props: {
   const p = "text-muted text-sm whitespace-nowrap";
 
   const r = "text-main text-sm truncate text-right";
-
-  const convertMoney = (value: number) => {
-    return value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  };
 
   return (
     <div
@@ -32,11 +27,11 @@ export default function CardClient(props: {
       <div className="card-content flex flex-col gap-1">
         <div className={style}>
           <p className={p}>Última atualização:</p>
-          <p className={r}>{props.client.updated_at}</p>
+          <p className={r}>{utils.timeAgo(props.client.updated_at)}</p>
         </div>
         <div className={style}>
           <p className={p}>cnpj:</p>
-          <p className={r}>{props.client.cnpj}</p>
+          <p className={r}>{utils.formatCNPJ(props.client.cnpj)}</p>
         </div>
         <div className={style}>
           <p className={p}>Pedidos:</p>
@@ -44,7 +39,9 @@ export default function CardClient(props: {
         </div>
         <div className={style}>
           <p className={p}>Total Gasto:</p>
-          <p className={r}>{convertMoney(props.client.projected_profit)}</p>
+          <p className={r}>
+            {utils.formatMoney(props.client.projected_profit)}
+          </p>
         </div>
       </div>
     </div>
