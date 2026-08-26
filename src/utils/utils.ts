@@ -36,6 +36,11 @@ export function formatMoney(value: number): string {
   });
 }
 
+// Convert Date em "2026-08-22T15:07:13.000Z"
+export function dateToISOString(date: Date): string {
+  return date.toISOString();
+}
+
 export function formatCNPJ(cnpj: string): string {
   const cleanedCNPJ = cnpj.replace(/\D/g, ""); // Remove non-digit characters
   if (cleanedCNPJ.length !== 14) {

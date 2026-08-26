@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import * as utils from "../utils/utils";
 
 import Layout from "../components/Layout";
 import CardClient from "../components/CardClient";
@@ -12,7 +13,13 @@ export default function Home() {
 
   useEffect(() => {
     const fetchClients = async () => {
-      const response = await getClients({});
+      const updatedStart = new Date();
+      const updatedEnd = new Date();
+      updatedStart.setDate(updatedStart.getDate() - 30);
+      const response = await getClients({
+        updated_start: utils.dateToISOString(updatedStart),
+        updated_end: utils.dateToISOString(updatedEnd),
+      });
       console.log("Fetched clients:", response.data);
       setClients(response.data);
     };
