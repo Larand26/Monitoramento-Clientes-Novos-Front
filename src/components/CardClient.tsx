@@ -42,7 +42,7 @@ export default function CardClient(props: {
         <div className={style}>
           <p className={p}>Total Gasto:</p>
           <p className={r}>
-            {utils.formatMoney(props.client.projected_profit)}
+            {utils.formatMoney(props.client.projected_profit || 0)}
           </p>
         </div>
       </div>
