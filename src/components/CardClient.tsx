@@ -14,14 +14,20 @@ export default function CardClient(props: {
 
   const r = "text-main text-sm truncate text-right";
 
+  const hoverCardStyle =
+    "hover:shadow-lg hover:scale-[1.02] transition-all duration-300";
+
   return (
     <div
-      className="bg-card rounded-lg shadow-md p-4 w-80 cursor-pointer relative"
+      className={
+        hoverCardStyle +
+        " bg-card rounded-lg shadow-md p-4 w-80 cursor-pointer relative"
+      }
       onClick={props.onClick}
     >
       <div className="card-header pb-2 flex justify-between items-center gap-2">
         <h2 className="font-title text-main text-2xl truncate">
-          {props.client.name}
+          {utils.removeFirstsNubersFromName(props.client.name)}
         </h2>
         <FlagStatus status={props.client.status} />
       </div>

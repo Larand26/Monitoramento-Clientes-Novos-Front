@@ -51,3 +51,13 @@ export function formatCNPJ(cnpj: string): string {
     "$1.$2.$3/$4-$5",
   );
 }
+
+export function removeFirstsNubersFromName(name: string): string {
+  if (!name) return name;
+
+  // Regex que busca a raiz do CNPJ (8 dígitos) ou o CNPJ completo no início da string
+  const regexCnpjNoInicio = /^\d{2}\.?\d{3}\.?\d{3}(?:\/\d{4}-?\d{2})?\s+/;
+
+  // Substitui o padrão encontrado por vazio e remove espaços extras
+  return name.replace(regexCnpjNoInicio, "").trim();
+}
