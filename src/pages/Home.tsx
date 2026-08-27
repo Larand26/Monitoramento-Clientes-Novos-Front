@@ -33,7 +33,7 @@ export default function Home() {
       subtitle="Monitoramento de consumo e status dos últimos 30 dias"
     >
       <div className="flex flex-col align-center gap-4 w-full mt-10">
-        <div className="flex flex-wrap gap-10 justify-center">
+        <div className="flex flex-wrap gap-10 justify-center overflow-y-auto max-h-[calc(100vh-300px)] custom-scrollbar">
           {clients?.map((client) => (
             <CardClient key={client._id} client={client} />
           ))}
