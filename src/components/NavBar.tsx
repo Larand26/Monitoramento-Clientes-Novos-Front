@@ -21,7 +21,7 @@ export default function NavBar(props: { page?: string }) {
             </li>
             <li>
               <a
-                href=""
+                href="/dashboards"
                 className={`${linkClasses} ${props.page === "dashboards" ? "text-primary" : ""}`}
               >
                 Dashboard
