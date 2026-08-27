@@ -2,7 +2,12 @@ import { useState, useRef, useEffect } from "react";
 
 import type { Client } from "../interfaces/client.interface";
 
-export default function InputSearchClients(props: { data: Client[] }) {
+export default function InputSearchClients(props: {
+  data: Client[];
+  searchQuery: string;
+  onchange: (query: string) => void;
+  onSearch?: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -65,6 +70,13 @@ export default function InputSearchClients(props: { data: Client[] }) {
                 open ? "bg-transparent rounded-full" : "bg-card rounded-full"
               }`}
               onClick={() => setOpen(true)}
+              value={props.searchQuery}
+              onChange={(e) => props.onchange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && props.onSearch) {
+                  props.onSearch();
+                }
+              }}
             />
 
             <button
@@ -74,11 +86,9 @@ export default function InputSearchClients(props: { data: Client[] }) {
                   : "bg-page text-main hover:bg-page/80"
               }`}
               onClick={(e) => {
-                if (open) {
-                  e.stopPropagation();
-                  setOpen(false);
-                } else {
-                  setOpen(true);
+                e.stopPropagation();
+                if (props.onSearch) {
+                  props.onSearch();
                 }
               }}
             >

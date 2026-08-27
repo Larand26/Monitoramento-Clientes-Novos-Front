@@ -52,6 +52,10 @@ export function formatCNPJ(cnpj: string): string {
   );
 }
 
+export function formatCnpjforApi(cnpj: string): string {
+  return cnpj.replace(/\D/g, ""); // Remove non-digit characters
+}
+
 export function removeFirstsNubersFromName(name: string): string {
   if (!name) return name;
 

@@ -37,6 +37,7 @@ export async function getClients(
       },
       params: filters,
     });
+    console.log("Response from getClients:", response.data, filters); // Log the entire response data
     return response.data;
   } catch (error) {
     console.error("Error fetching clients:", error);
