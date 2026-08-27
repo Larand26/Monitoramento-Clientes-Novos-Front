@@ -19,18 +19,21 @@ export default function Dashboards() {
       let responseStoreId: Client[];
 
       if (searchQuery) {
+        setSearchQuery("");
+
+        // Search by Name
+        responseName = (await getClients({ name: searchQuery })).data;
+        if (responseName.length > 0) {
+          setClients(responseName);
+          return;
+        }
+
         // Search by CNPJ
         responseCnpj = (
           await getClients({ cnpj: utils.formatCnpjforApi(searchQuery) })
         ).data;
         if (responseCnpj.length > 0) {
           setClients(responseCnpj);
-          return;
-        }
-        // Search by Name
-        responseName = (await getClients({ name: searchQuery })).data;
-        if (responseName.length > 0) {
-          setClients(responseName);
           return;
         }
 

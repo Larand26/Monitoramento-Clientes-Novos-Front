@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
+import * as utils from "../utils/utils";
+
 import type { Client } from "../interfaces/client.interface";
 
 export default function InputSearchClients(props: {
@@ -123,7 +125,9 @@ export default function InputSearchClients(props: {
                   onClick={() => console.log(client.name)}
                   className="w-full text-left px-4 py-2 rounded-lg hover:bg-muted/10 transition-colors duration-300 font-title text-main text-lg cursor-pointer"
                 >
-                  {client.name}
+                  {client.store_id || "000000"} |{" "}
+                  {utils.removeFirstsNubersFromName(client.name)} |{" "}
+                  {utils.formatCNPJ(client.cnpj)}
                 </button>
               </li>
             ))}
