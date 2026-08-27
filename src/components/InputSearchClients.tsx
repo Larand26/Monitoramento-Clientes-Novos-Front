@@ -1,14 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 
-export interface ClientData {
-  name: string;
-}
+import type { Client } from "../interfaces/client.interface";
 
-interface InputSearchClientsProps {
-  data: ClientData[];
-}
-
-export default function InputSearchClients({ data }: InputSearchClientsProps) {
+export default function InputSearchClients(props: { data: Client[] }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -113,9 +107,12 @@ export default function InputSearchClients({ data }: InputSearchClientsProps) {
         >
           <p className="text-muted text-sm mb-4 shrink-0">Pesquisas recentes</p>
           <ul className="flex flex-col gap-3 overflow-y-auto custom-scrollbar pr-2 flex-1">
-            {data.map((client, index) => (
+            {props.data.map((client, index) => (
               <li key={index}>
-                <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-muted/10 transition-colors duration-300 font-title text-main text-lg cursor-pointer">
+                <button
+                  onClick={() => console.log(client.name)}
+                  className="w-full text-left px-4 py-2 rounded-lg hover:bg-muted/10 transition-colors duration-300 font-title text-main text-lg cursor-pointer"
+                >
                   {client.name}
                 </button>
               </li>

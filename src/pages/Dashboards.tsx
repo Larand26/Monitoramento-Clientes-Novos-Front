@@ -1,19 +1,16 @@
+import { useState } from "react";
+
 import Layout from "../components/Layout";
 import InputSearchClients from "../components/InputSearchClients";
 
-export default function Dashboards() {
-  // Mock de dados para exemplificar a tipagem e o mapeamento
-  const mockClients = [
-    { name: "Empresa Alpha" },
-    { name: "Tech Solutions" },
-    { name: "Comércio Beta" },
-  ];
+import type { Client } from "../interfaces/client.interface";
 
+export default function Dashboards() {
+  const [clients, setClients] = useState<Client[]>([]);
   return (
     <Layout page="dashboards">
-      {/* Container relative para o input flutuar perfeitamente */}
       <div className="relative w-full h-full flex justify-center">
-        <InputSearchClients data={mockClients} />
+        <InputSearchClients data={clients} />
       </div>
     </Layout>
   );
