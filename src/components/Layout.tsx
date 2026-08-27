@@ -8,9 +8,10 @@ export default function Layout(props: {
   subtitle?: string;
 }) {
   return (
-    <div className="bg-page min-h-screen">
+    <div className="bg-page h-screen flex flex-col overflow-hidden">
       {props.showNavBar !== false && <NavBar page={props.page} />}
-      <div className="container mx-auto px-4 py-8">
+
+      <div className="container mx-auto px-4 py-8 flex-1 flex flex-col">
         {props.title && (
           <h1 className="text-3xl text-main font-title">{props.title}</h1>
         )}

@@ -5,7 +5,7 @@ export default function NavBar(props: { page?: string }) {
 
   return (
     <>
-      <nav className="bg-card py-2 px-4 flex justify-between items-center">
+      <nav className="bg-card py-2 px-4 flex justify-between items-center ">
         <div>
           <img src={isoLogo} alt="Logo" className="w-15" />
         </div>
@@ -13,7 +13,7 @@ export default function NavBar(props: { page?: string }) {
           <ul className="flex gap-10">
             <li>
               <a
-                href=""
+                href="/home"
                 className={`${linkClasses} ${props.page === "home" ? "text-primary" : ""}`}
               >
                 Home
