@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-
 import * as utils from "../utils/utils";
-
 import type { Client } from "../interfaces/client.interface";
 
 export default function InputSearchClients(props: {
@@ -9,10 +7,18 @@ export default function InputSearchClients(props: {
   searchQuery: string;
   onchange: (query: string) => void;
   onSearch?: () => void;
-  onGetHistory: (id: string) => void;
+  onGetHistory: (client: Client) => void; // Recebe o cliente completo
+  isClientSelected?: boolean; // Nova prop
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Fecha o menu automaticamente quando um cliente é selecionado
+  useEffect(() => {
+    if (props.isClientSelected) {
+      setOpen(false);
+    }
+  }, [props.isClientSelected]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -30,13 +36,18 @@ export default function InputSearchClients(props: {
   return (
     <div
       ref={containerRef}
-      className={`absolute w-full max-w-3xl transition-all duration-500 ease-in-out flex flex-col ${
-        open ? "top-0 translate-y-0 mt-4" : "top-1/2 -translate-y-1/2"
+      // Transição dinâmica de posição, largura e alinhamento
+      className={`absolute transition-all duration-700 ease-in-out flex flex-col z-50 ${
+        props.isClientSelected
+          ? "w-[300px] top-0 right-0 translate-y-0 translate-x-0"
+          : `w-full max-w-3xl left-1/2 -translate-x-1/2 ${
+              open ? "top-0 translate-y-0 mt-4" : "top-1/2 -translate-y-1/2"
+            }`
       }`}
     >
       <h1
         className={`text-center font-title text-main transition-all duration-500 ease-in-out overflow-hidden ${
-          open
+          open || props.isClientSelected // Desaparece também se houver cliente selecionado
             ? "opacity-0 max-h-0 mb-0 scale-95"
             : "opacity-100 max-h-20 mb-6 scale-100 text-4xl"
         }`}
@@ -46,8 +57,7 @@ export default function InputSearchClients(props: {
       <div
         className={`w-full overflow-hidden flex flex-col ${
           open
-            ? // Substituímos o h-[450px] pelo calc responsivo, com limites de min e max
-              "bg-card rounded-2xl shadow-2xl h-[calc(100vh-250px)] min-h-[400px] max-h-[800px] border border-muted/20"
+            ? "bg-card rounded-2xl shadow-2xl h-[calc(100vh-250px)] min-h-[400px] max-h-[800px] border border-muted/20"
             : "bg-transparent rounded-full h-[52px] border border-transparent"
         }`}
         style={{
@@ -61,10 +71,14 @@ export default function InputSearchClients(props: {
         }}
       >
         <div
-          className={`relative flex items-center w-full transition-colors duration-500 ${open ? "p-4" : "p-0"}`}
+          className={`relative flex items-center w-full transition-colors duration-500 ${
+            open ? "p-4" : "p-0"
+          }`}
         >
           <div
-            className={`relative flex items-center w-full transition-colors duration-500 ${open ? "border border-muted rounded-full" : ""}`}
+            className={`relative flex items-center w-full transition-colors duration-500 ${
+              open ? "border border-muted rounded-full" : ""
+            }`}
           >
             <input
               type="text"
@@ -124,7 +138,7 @@ export default function InputSearchClients(props: {
               <li key={index}>
                 <button
                   onClick={() => {
-                    props.onGetHistory(client._id);
+                    props.onGetHistory(client); // Passa o cliente completo
                   }}
                   className="w-full text-left px-4 py-2 rounded-lg hover:bg-muted/10 transition-colors duration-300 font-title text-main text-lg cursor-pointer"
                 >
