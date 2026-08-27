@@ -9,6 +9,7 @@ export default function InputSearchClients(props: {
   searchQuery: string;
   onchange: (query: string) => void;
   onSearch?: () => void;
+  onGetHistory: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -122,7 +123,9 @@ export default function InputSearchClients(props: {
             {props.data.map((client, index) => (
               <li key={index}>
                 <button
-                  onClick={() => console.log(client.name)}
+                  onClick={() => {
+                    props.onGetHistory(client._id);
+                  }}
                   className="w-full text-left px-4 py-2 rounded-lg hover:bg-muted/10 transition-colors duration-300 font-title text-main text-lg cursor-pointer"
                 >
                   {client.store_id || "000000"} |{" "}

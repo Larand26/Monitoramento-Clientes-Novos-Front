@@ -5,6 +5,7 @@ import InputSearchClients from "../components/InputSearchClients";
 
 import type { Client } from "../interfaces/client.interface";
 
+import { getHistory } from "../apis/history";
 import { getClients } from "../apis/clients";
 import * as utils from "../utils/utils";
 
@@ -49,6 +50,18 @@ export default function Dashboards() {
     }
   };
 
+  const handleGetHistoryClients = async (id: string) => {
+    try {
+      const history = await getHistory({
+        id: id,
+        id_type: "_id",
+      });
+      console.log("History:", history);
+    } catch (error) {
+      console.error("Error fetching history:", error);
+    }
+  };
+
   return (
     <Layout page="dashboards">
       <div className="relative w-full h-full flex justify-center">
@@ -57,6 +70,7 @@ export default function Dashboards() {
           searchQuery={searchQuery}
           onchange={setSearchQuery}
           onSearch={handleSearch}
+          onGetHistory={handleGetHistoryClients}
         />
       </div>
     </Layout>
