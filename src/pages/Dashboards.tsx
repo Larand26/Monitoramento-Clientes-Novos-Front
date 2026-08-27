@@ -16,6 +16,7 @@ export default function Dashboards() {
     try {
       let responseCnpj: Client[];
       let responseName: Client[];
+      let responseStoreId: Client[];
 
       if (searchQuery) {
         // Search by CNPJ
@@ -30,6 +31,13 @@ export default function Dashboards() {
         responseName = (await getClients({ name: searchQuery })).data;
         if (responseName.length > 0) {
           setClients(responseName);
+          return;
+        }
+
+        // Search by Store ID
+        responseStoreId = (await getClients({ store_id: searchQuery })).data;
+        if (responseStoreId.length > 0) {
+          setClients(responseStoreId);
           return;
         }
       }

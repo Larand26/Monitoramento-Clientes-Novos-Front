@@ -24,6 +24,7 @@ interface filterGetClients {
   seller_id?: number;
   page?: number;
   limit?: number;
+  store_id?: string;
 }
 
 export async function getClients(
