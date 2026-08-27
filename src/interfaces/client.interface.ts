@@ -2,6 +2,7 @@ export interface Client {
   _id: string;
   magento_id: string;
   rd_station_id: string;
+  store_id?: string;
   name: string;
   cnpj: string;
   magento_order_ids: string[];
