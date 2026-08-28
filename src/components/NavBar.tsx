@@ -29,7 +29,7 @@ export default function NavBar(props: { page?: string }) {
             </li>
             <li>
               <a
-                href=""
+                href="/clients"
                 className={`${linkClasses} ${props.page === "clients" ? "text-primary" : ""}`}
               >
                 Clientes
