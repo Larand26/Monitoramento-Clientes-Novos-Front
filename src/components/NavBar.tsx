@@ -68,7 +68,7 @@ export default function NavBar(props: { page?: string }) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`}
+            className={`w-5 h-5 cursor-pointer ${isRefreshing ? "animate-spin" : ""}`}
           >
             <path
               strokeLinecap="round"
@@ -79,14 +79,7 @@ export default function NavBar(props: { page?: string }) {
         </button>
 
         {/* Divisor Visual e Dados do Usuário */}
-        <div className="flex flex-col items-end border-l border-muted/20 pl-4">
-          <span className="text-main font-semibold text-sm">
-            {currentUser?.name || "Usuário Convidado"}
-          </span>
-          <span className="text-muted text-xs">
-            {currentUser?.activeProject}
-          </span>
-        </div>
+        <div className="flex flex-col items-end border-l border-muted/20 pl-4"></div>
       </div>
     </nav>
   );
