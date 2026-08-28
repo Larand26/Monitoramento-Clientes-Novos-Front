@@ -27,7 +27,6 @@ export async function getHistory(
         params: filters,
       },
     );
-    console.log("Response from getHistory:", response.data, filters);
     return response.data;
   } catch (error) {
     console.error("Error fetching history:", error);

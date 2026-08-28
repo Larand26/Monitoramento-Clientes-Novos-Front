@@ -20,7 +20,6 @@ export default function Home() {
         updated_start: utils.dateToISOString(updatedStart),
         updated_end: utils.dateToISOString(updatedEnd),
       });
-      console.log("Fetched clients:", response.data);
       setClients(response.data);
     };
     fetchClients();

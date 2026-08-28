@@ -44,15 +44,15 @@ export default function HistoryChart({ data }: HistoryChartProps) {
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
           <XAxis
-            dataKey="formattedDate"
-            scale="point" /* Transforma a escala para pontos exatos em vez de blocos */
-            padding={{
-              left: 0,
-              right: 20,
-            }} /* Trava a esquerda no eixo Y e dá um respiro na direita */
+            dataKey="changed_at"
+            scale="point"
+            padding={{ left: 0, right: 20 }}
             stroke="#94a3b8"
             tick={{ fill: "#94a3b8", fontSize: 12 }}
             tickMargin={10}
+            tickFormatter={(value) =>
+              new Date(value).toLocaleDateString("pt-BR")
+            }
             label={{
               value: "Tempo",
               position: "insideBottom",
