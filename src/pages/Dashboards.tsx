@@ -18,15 +18,11 @@ export default function Dashboards() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [historyData, setHistoryData] = useState<ChartData[]>([]);
 
-  const location = useLocation(); // Acessa os dados passados pelo navigate()
-
-  // Auto-Load via Deep Link: Se recebeu um cliente pelo router state, aciona a busca na hora
+  const location = useLocation();
   useEffect(() => {
     if (location.state?.client) {
       handleGetHistoryClients(location.state.client);
     }
-    // Opcional: Você pode limpar o state usando window.history.replaceState se não
-    // quiser que o gráfico recarregue caso a página sofra refresh manual.
   }, [location.state?.client]);
 
   useEffect(() => {
