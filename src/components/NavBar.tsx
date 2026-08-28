@@ -6,7 +6,7 @@ import { useAppStore } from "../store/useAppStore";
 export default function NavBar(props: { page?: string }) {
   const linkClasses = "text-main hover:text-gray-300 transition-colors";
 
-  const currentUser = useAppStore((state) => state.currentUser);
+  // const currentUser = useAppStore((state) => state.currentUser);
   const initializeAppData = useAppStore((state) => state.initializeAppData);
 
   // Estado para controlar a animação de giro do botão
