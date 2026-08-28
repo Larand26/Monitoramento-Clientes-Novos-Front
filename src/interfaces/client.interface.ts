@@ -11,4 +11,5 @@ export interface Client {
   created_at: string;
   updated_at: string;
   projected_profit?: number;
+  seller_id?: string;
 }

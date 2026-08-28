@@ -1,6 +1,6 @@
 import { create } from "zustand";
+import { getSellers } from "../apis/sellers"; // Importe sua API
 
-// 1. Tipagem dos dados globais
 export interface User {
   id: string;
   name: string;
@@ -11,21 +11,18 @@ export interface User {
 interface AppState {
   currentUser: User | null;
   isAppReady: boolean;
+  sellers: Record<string, string>; // Dicionário de Vendedores
   initializeAppData: () => Promise<void>;
 }
 
-// 2. Criação do Store
 export const useAppStore = create<AppState>((set) => ({
   currentUser: null,
   isAppReady: false,
+  sellers: {},
 
-  // 3. Ação para buscar os dados iniciais
   initializeAppData: async () => {
     try {
-      // Aqui você faria sua chamada real (ex: await getUserProfile())
-      // Simulando o tempo de resposta de uma API
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
+      // 1. Carrega dados do usuário (Simulado)
       const mockUser: User = {
         id: "usr_01",
         name: "Victor de Brito Laranjeira",
@@ -33,11 +30,26 @@ export const useAppStore = create<AppState>((set) => ({
         activeProject: "Daniel Calçados - E-commerce",
       };
 
-      // Atualiza o estado global, notificando todos os componentes
-      set({ currentUser: mockUser, isAppReady: true });
+      // 2. Carrega a lista base de Vendedores da API
+      const sellersResponse = await getSellers({ limit: 1000 });
+
+      // Transforma o array em um dicionário para busca instantânea
+      const sellersMap: Record<string, string> = {};
+      if (sellersResponse?.data) {
+        sellersResponse.data.forEach((seller) => {
+          sellersMap[seller._id] = seller.name;
+        });
+      }
+
+      // 3. Salva tudo no estado global de uma vez
+      set({
+        currentUser: mockUser,
+        sellers: sellersMap,
+        isAppReady: true,
+      });
     } catch (error) {
       console.error("Error fetching initial app data:", error);
-      set({ isAppReady: true }); // Evita travar a tela de loading para sempre
+      set({ isAppReady: true });
     }
   },
 }));
