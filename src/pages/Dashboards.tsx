@@ -8,6 +8,7 @@ import HistoryChart, { type ChartData } from "../components/HistoryChart";
 import type { Client } from "../interfaces/client.interface";
 
 import { getHistory } from "../apis/history";
+import { getClients } from "../apis/clients"; // <-- Importação restaurada
 import * as utils from "../utils/utils";
 import { processHistoryData } from "../utils/dashboardLogic"; // Importa a lógica isolada
 
@@ -19,6 +20,7 @@ export default function Dashboards() {
   const [historyData, setHistoryData] = useState<ChartData[]>([]);
 
   const location = useLocation();
+
   useEffect(() => {
     if (location.state?.client) {
       handleGetHistoryClients(location.state.client);
@@ -33,7 +35,50 @@ export default function Dashboards() {
   }, []);
 
   const handleSearch = async () => {
-    // ... [Seu código original de busca sequencial permanece intacto aqui] ...
+    try {
+      if (!searchQuery) return;
+
+      let foundClients: Client[] = [];
+
+      const responseName = (await getClients({ name: searchQuery })).data;
+      if (responseName.length > 0) {
+        foundClients = responseName;
+      } else {
+        const responseCnpj = (
+          await getClients({ cnpj: utils.formatCnpjforApi(searchQuery) })
+        ).data;
+        if (responseCnpj.length > 0) {
+          foundClients = responseCnpj;
+        } else {
+          const responseStoreId = (await getClients({ store_id: searchQuery }))
+            .data;
+          if (responseStoreId.length > 0) {
+            foundClients = responseStoreId;
+          }
+        }
+      }
+
+      if (foundClients.length > 0) {
+        const currentHistory: Client[] = JSON.parse(
+          localStorage.getItem("clients") || "[]",
+        );
+
+        const filteredHistory = currentHistory.filter(
+          (historyItem) =>
+            !foundClients.some(
+              (newClient) => newClient._id === historyItem._id,
+            ),
+        );
+
+        const newHistory = [...foundClients, ...filteredHistory].slice(0, 10);
+        setClients(newHistory);
+        localStorage.setItem("clients", JSON.stringify(newHistory));
+      }
+
+      setSearchQuery("");
+    } catch (error) {
+      console.error("Error searching clients:", error);
+    }
   };
 
   const handleGetHistoryClients = async (client: Client) => {
