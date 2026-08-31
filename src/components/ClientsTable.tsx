@@ -1,17 +1,23 @@
+import { useState } from "react";
+import toast from "react-hot-toast";
 import type { Client } from "../interfaces/client.interface";
 import FlagStatus from "./FlagStatus";
+import EditClientModal from "./EditClientModal";
 import * as utils from "../utils/utils";
 import { useAppStore } from "../store/useAppStore";
+import { updateClient } from "../apis/clients"; // <-- Importação da API
 
 interface ClientsTableProps {
-  clients: Client[]; // Usamos a interface limpa agora
+  clients: Client[];
   currentPage: number;
   totalPages: number;
   onNextPage: () => void;
   onPrevPage: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onSearchSubmit: () => void;
   isLoading?: boolean;
+  onRefreshData?: () => void; // <-- Prop para recarregar a tabela após edição
 }
 
 export default function ClientsTable({
@@ -22,13 +28,53 @@ export default function ClientsTable({
   onPrevPage,
   searchQuery,
   onSearchChange,
+  onSearchSubmit,
   isLoading,
+  onRefreshData,
 }: ClientsTableProps) {
-  // Extraímos o dicionário pré-carregado do estado global
   const sellers = useAppStore((state) => state.sellers);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+
+  const handleEditClick = (client: Client) => {
+    setEditingClient(client);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveClient = async (updatedClient: Client) => {
+    try {
+      // 1. Monta o Partial<Client> apenas com os dados que podem ser editados no modal
+      const clientData: Partial<Client> = {
+        name: updatedClient.name,
+        cnpj: updatedClient.cnpj,
+        status: updatedClient.status,
+      };
+
+      // 2. Dispara a requisição para a API
+      await updateClient(updatedClient._id, clientData);
+
+      toast.success("Cliente atualizado com sucesso!");
+      setIsModalOpen(false);
+      setEditingClient(null);
+
+      // 3. Avisa a página pai para buscar os dados atualizados
+      if (onRefreshData) {
+        onRefreshData();
+      }
+    } catch (error) {
+      console.error("Error updating client:", error);
+      toast.error("Ocorreu um erro ao atualizar o cliente.");
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingClient(null);
+  };
+
   return (
-    <div className="w-full flex flex-col bg-card rounded-xl border border-muted/20 shadow-xl overflow-hidden">
+    <div className="w-full flex flex-col bg-card rounded-xl border border-muted/20 shadow-xl overflow-hidden relative">
       <div className="w-full flex justify-between items-center px-4 py-2.5 border-b border-muted/20 bg-muted/5">
         <h2 className="text-lg font-title text-main uppercase">
           Base de Clientes
@@ -36,9 +82,14 @@ export default function ClientsTable({
         <div className="relative w-full max-w-[300px]">
           <input
             type="text"
-            placeholder="Pesquisar por nome ou CNPJ..."
+            placeholder="Pressione Enter para buscar..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSearchSubmit();
+              }
+            }}
             disabled={isLoading}
             className="w-full bg-page text-main text-sm border border-muted/20 rounded-md pl-9 pr-3 py-1.5 outline-none focus:border-primary transition-colors duration-300 shadow-sm disabled:opacity-50"
           />
@@ -75,6 +126,9 @@ export default function ClientsTable({
               <th className="px-6 py-4 text-muted text-sm font-title uppercase tracking-wider text-center">
                 Status
               </th>
+              <th className="px-6 py-4 text-muted text-sm font-title uppercase tracking-wider text-center">
+                Ações
+              </th>
             </tr>
           </thead>
 
@@ -82,7 +136,7 @@ export default function ClientsTable({
             {isLoading ? (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={5}
                   className="px-6 py-20 text-center text-muted text-sm"
                 >
                   <span className="text-lg font-medium animate-pulse">
@@ -103,7 +157,6 @@ export default function ClientsTable({
                     {utils.formatCNPJ(client.cnpj)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {/* Leitura síncrona direto do dicionário Zustand */}
                     <span className="text-main">
                       {client.seller_id
                         ? sellers[client.seller_id] || "Desconhecido"
@@ -113,12 +166,34 @@ export default function ClientsTable({
                   <td className="px-6 py-4 whitespace-nowrap flex justify-center">
                     <FlagStatus status={client.status} />
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      onClick={() => handleEditClick(client)}
+                      className="p-2 rounded-md text-muted hover:text-primary hover:bg-primary/10 transition-colors duration-200"
+                      title="Editar Cliente"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                        />
+                      </svg>
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={5}
                   className="px-6 py-12 text-center text-muted text-sm"
                 >
                   Nenhum cliente encontrado.
@@ -153,6 +228,13 @@ export default function ClientsTable({
           </button>
         </div>
       </div>
+
+      <EditClientModal
+        isOpen={isModalOpen}
+        clientData={editingClient}
+        onClose={handleCloseModal}
+        onSave={handleSaveClient}
+      />
     </div>
   );
 }
