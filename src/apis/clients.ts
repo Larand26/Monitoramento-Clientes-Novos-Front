@@ -44,3 +44,68 @@ export async function getClients(
     throw error;
   }
 }
+
+export async function getClientById(clientId: string): Promise<Client> {
+  try {
+    const response = await axios.get(
+      `${config.api.host}/api/v1/get-client-byid`,
+      {
+        headers: {
+          Authorization: `Bearer ${config.api.token}`,
+          "Content-Type": "application/json",
+        },
+        params: { id: clientId, id_type: "_id" },
+      },
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error(`Error fetching client with ID ${clientId}:`, error);
+    throw error;
+  }
+}
+
+export async function createClient(
+  clientData: Partial<Client>,
+): Promise<Client> {
+  try {
+    const response = await axios.post(
+      `${config.api.host}/api/v1/create-client`,
+      clientData,
+      {
+        headers: {
+          Authorization: `Bearer ${config.api.token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error creating client:", error);
+    throw error;
+  }
+}
+
+export async function updateClient(
+  clientId: string,
+  clientData: Partial<Client>,
+): Promise<Client> {
+  try {
+    const response = await axios.put(
+      `${config.api.host}/api/v1/update-client`,
+      {
+        id: clientId,
+        client: clientData,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${config.api.token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error updating client:", error);
+    throw error;
+  }
+}
