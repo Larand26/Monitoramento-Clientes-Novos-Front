@@ -170,7 +170,7 @@ export default function ClientsTable({
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <button
                       onClick={() => handleEditClick(client)}
-                      className="p-2 rounded-md text-muted hover:text-primary hover:bg-primary/10 transition-colors duration-200"
+                      className="p-2 cursor-pointer rounded-md text-muted hover:text-primary hover:bg-primary/10 transition-colors duration-200"
                       title="Editar Cliente"
                     >
                       <svg

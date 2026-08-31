@@ -123,13 +123,13 @@ export default function EditClientModal({
         <div className="px-6 py-4 border-t border-muted/20 bg-muted/5 flex justify-end gap-3 rounded-b-xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-transparent text-muted text-sm font-medium border border-muted/30 hover:bg-muted/10 transition-all duration-300"
+            className="px-4 py-2 cursor-pointer rounded-lg bg-transparent text-muted text-sm font-medium border border-muted/30 hover:bg-muted/10 transition-all duration-300"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 hover:shadow-lg transition-all duration-300"
+            className="px-4 py-2 cursor-pointer rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 hover:shadow-lg transition-all duration-300"
           >
             Salvar Alterações
           </button>
