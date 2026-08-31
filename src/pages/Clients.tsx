@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import ClientsTable from "../components/ClientsTable";
+import CreateClientDrawer from "../components/CreateClientDrawer";
 import { getClients } from "../apis/clients";
 import type { Client } from "../interfaces/client.interface";
 import * as utils from "../utils/utils";
@@ -8,6 +9,8 @@ import * as utils from "../utils/utils";
 export default function Clients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState<
@@ -111,10 +114,14 @@ export default function Clients() {
     }
   };
 
+  const refreshCurrentPage = () => {
+    fetchClientsData(currentPage, searchQuery, searchType);
+  };
+
   return (
     <Layout page="clients" title="CLIENTES">
       <div className="w-full mt-6 flex flex-col items-center">
-        <div className="w-full max-w-7xl">
+        <div className="w-full max-w-7xl flex flex-col gap-4">
           <ClientsTable
             clients={clients}
             currentPage={currentPage}
@@ -124,13 +131,18 @@ export default function Clients() {
             searchQuery={searchQuery}
             onSearchChange={handleSearchChange}
             onSearchSubmit={handleSearchSubmit}
+            onAddClientClick={() => setIsDrawerOpen(true)} // <-- Chamada do Drawer movida para a tabela
             isLoading={isLoading}
-            onRefreshData={() =>
-              fetchClientsData(currentPage, searchQuery, searchType)
-            }
+            onRefreshData={refreshCurrentPage}
           />
         </div>
       </div>
+
+      <CreateClientDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onRefreshData={refreshCurrentPage}
+      />
     </Layout>
   );
 }

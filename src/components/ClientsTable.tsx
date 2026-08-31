@@ -5,7 +5,7 @@ import FlagStatus from "./FlagStatus";
 import EditClientModal from "./EditClientModal";
 import * as utils from "../utils/utils";
 import { useAppStore } from "../store/useAppStore";
-import { updateClient } from "../apis/clients"; // <-- Importação da API
+import { updateClient } from "../apis/clients";
 
 interface ClientsTableProps {
   clients: Client[];
@@ -16,8 +16,9 @@ interface ClientsTableProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSearchSubmit: () => void;
+  onAddClientClick: () => void; // <-- Nova propriedade
   isLoading?: boolean;
-  onRefreshData?: () => void; // <-- Prop para recarregar a tabela após edição
+  onRefreshData?: () => void;
 }
 
 export default function ClientsTable({
@@ -29,6 +30,7 @@ export default function ClientsTable({
   searchQuery,
   onSearchChange,
   onSearchSubmit,
+  onAddClientClick, // <-- Recebendo a função
   isLoading,
   onRefreshData,
 }: ClientsTableProps) {
@@ -44,22 +46,18 @@ export default function ClientsTable({
 
   const handleSaveClient = async (updatedClient: Client) => {
     try {
-      // 1. Monta o Partial<Client> apenas com os dados que podem ser editados no modal
       const clientData: Partial<Client> = {
         name: updatedClient.name,
         cnpj: updatedClient.cnpj,
         status: updatedClient.status,
-        seller_id: updatedClient.seller_id,
       };
 
-      // 2. Dispara a requisição para a API
       await updateClient(updatedClient._id, clientData);
 
       toast.success("Cliente atualizado com sucesso!");
       setIsModalOpen(false);
       setEditingClient(null);
 
-      // 3. Avisa a página pai para buscar os dados atualizados
       if (onRefreshData) {
         onRefreshData();
       }
@@ -80,34 +78,59 @@ export default function ClientsTable({
         <h2 className="text-lg font-title text-main uppercase">
           Base de Clientes
         </h2>
-        <div className="relative w-full max-w-[300px]">
-          <input
-            type="text"
-            placeholder="Pressione Enter para buscar..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                onSearchSubmit();
-              }
-            }}
-            disabled={isLoading}
-            className="w-full bg-page text-main text-sm border border-muted/20 rounded-md pl-9 pr-3 py-1.5 outline-none focus:border-primary transition-colors duration-300 shadow-sm disabled:opacity-50"
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+
+        {/* Agrupamento do Input e do Botão de Adicionar */}
+        <div className="flex items-center gap-3">
+          <div className="relative w-full max-w-[300px]">
+            <input
+              type="text"
+              placeholder="Pressione Enter para buscar..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  onSearchSubmit();
+                }
+              }}
+              disabled={isLoading}
+              className="w-full bg-page text-main text-sm border border-muted/20 rounded-md pl-9 pr-3 py-1.5 outline-none focus:border-primary transition-colors duration-300 shadow-sm disabled:opacity-50"
             />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
+          </div>
+
+          <button
+            onClick={onAddClientClick}
+            className="px-4 py-1.5 cursor-pointer rounded-md bg-page text-white text-sm font-medium hover:bg-primary/90 hover:shadow-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>
+            Adicionar Cliente
+          </button>
         </div>
       </div>
 
@@ -170,7 +193,7 @@ export default function ClientsTable({
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <button
                       onClick={() => handleEditClick(client)}
-                      className="p-2 cursor-pointer rounded-md text-muted hover:text-primary hover:bg-primary/10 transition-colors duration-200"
+                      className="p-2 rounded-md text-muted hover:text-primary hover:bg-primary/10 transition-colors duration-200"
                       title="Editar Cliente"
                     >
                       <svg
