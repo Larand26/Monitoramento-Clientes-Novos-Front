@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import type { Client } from "../interfaces/client.interface";
+import InputSelect, { type SelectOption } from "./InputSelect";
 import * as utils from "../utils/utils";
+import { useAppStore } from "../store/useAppStore";
 
 interface EditClientModalProps {
   isOpen: boolean;
@@ -17,7 +19,9 @@ export default function EditClientModal({
 }: EditClientModalProps) {
   const [formData, setFormData] = useState<Client | null>(null);
 
-  // Sincroniza os dados do formulário sempre que o modal abre ou o cliente selecionado muda
+  // Consome os vendedores cacheados no estado global
+  const sellers = useAppStore((state) => state.sellers);
+
   useEffect(() => {
     if (clientData) {
       setFormData({ ...clientData });
@@ -26,11 +30,17 @@ export default function EditClientModal({
 
   if (!isOpen || !formData) return null;
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  // Handler para inputs de texto convencionais
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => (prev ? { ...prev, [name]: value } : null));
+  };
+
+  // Handler especializado para o nosso componente InputSelect
+  const handleSelectChange = (value: string, name?: string) => {
+    if (name) {
+      setFormData((prev) => (prev ? { ...prev, [name]: value } : null));
+    }
   };
 
   const handleSave = () => {
@@ -38,6 +48,21 @@ export default function EditClientModal({
       onSave(formData);
     }
   };
+
+  // Monta as opções estáticas de Status
+  const statusOptions: SelectOption[] = [
+    { label: "No CRM", value: "IN_CRM" },
+    { label: "Sucesso", value: "SUCCESS" },
+    { label: "Perdido", value: "LOST" },
+  ];
+
+  // Transforma o dicionário Record<string, string> do Zustand em um array compatível com o InputSelect
+  const sellerOptions: SelectOption[] = Object.entries(sellers).map(
+    ([id, name]) => ({
+      label: name,
+      value: id,
+    }),
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -77,21 +102,21 @@ export default function EditClientModal({
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-muted text-xs font-semibold uppercase tracking-wider">
-              Status
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full bg-page text-main text-sm border border-muted/20 rounded-md px-3 py-2 outline-none focus:border-primary transition-colors duration-300 appearance-none"
-            >
-              <option value="IN_CRM">No CRM</option>
-              <option value="SUCCESS">Sucesso</option>
-              <option value="LOST">Perdido</option>
-            </select>
-          </div>
+          <InputSelect
+            label="Status"
+            name="status"
+            value={formData.status}
+            options={statusOptions}
+            onChange={handleSelectChange}
+          />
+
+          <InputSelect
+            label="Vendedor"
+            name="seller_id"
+            value={formData.seller_id || ""}
+            options={sellerOptions}
+            onChange={handleSelectChange}
+          />
         </div>
 
         {/* Rodapé do Modal */}

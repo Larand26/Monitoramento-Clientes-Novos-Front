@@ -49,6 +49,7 @@ export default function ClientsTable({
         name: updatedClient.name,
         cnpj: updatedClient.cnpj,
         status: updatedClient.status,
+        seller_id: updatedClient.seller_id,
       };
 
       // 2. Dispara a requisição para a API
