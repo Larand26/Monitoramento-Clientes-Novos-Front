@@ -1,5 +1,5 @@
 export default function FlagStatus(props: {
-  status: "IN_CRM" | "LOST" | "SUCCESS";
+  status: "IN_CRM" | "LOST" | "SUCCESS" | "FREEZE";
   className?: string;
 }) {
   const styleText =
@@ -17,6 +17,9 @@ export default function FlagStatus(props: {
         )}
         {props.status === "SUCCESS" && (
           <span className={`${styleText} text-success `}>sucesso</span>
+        )}
+        {props.status === "FREEZE" && (
+          <span className={`${styleText} text-warning `}>esfriado</span>
         )}
       </p>
     </div>

@@ -3,11 +3,14 @@ import type { Client } from "../interfaces/client.interface";
 import FlagStatus from "./FlagStatus";
 
 import * as utils from "../utils/utils";
+import { useClientOrdersCount } from "../hooks/useClientOrdersCount";
 
 export default function CardClient(props: {
   client: Client;
   onClick?: () => void;
 }) {
+  const { totalOrders, isLoading } = useClientOrdersCount(props.client._id);
+
   const style = "w-full flex justify-between gap-2 items-center";
 
   const p = "text-muted text-sm whitespace-nowrap";
@@ -43,7 +46,7 @@ export default function CardClient(props: {
         </div>
         <div className={style}>
           <p className={p}>Pedidos:</p>
-          <p className={r}>{props.client.store_order_ids.length}</p>
+          <p className={r}>{isLoading ? "Carregando..." : totalOrders}</p>
         </div>
         <div className={style}>
           <p className={p}>Total Gasto:</p>

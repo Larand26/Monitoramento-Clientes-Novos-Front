@@ -5,11 +5,10 @@ export interface Client {
   store_id?: string;
   name: string;
   cnpj: string;
-  magento_order_ids: string[];
-  store_order_ids: string[];
   status: "IN_CRM" | "LOST" | "SUCCESS" | "FREEZE";
   created_at: string;
   updated_at: string;
   projected_profit?: number;
   seller_id?: string;
+  avg_days_between_purchases: number;
 }
