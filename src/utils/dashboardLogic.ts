@@ -1,64 +1,32 @@
 import type { Client } from "../interfaces/client.interface";
-import type { History } from "../interfaces/history.interface";
+import type { Order } from "../interfaces/order.interface";
 import type { ChartData } from "../components/HistoryChart";
 
-export const processHistoryData = (
+export const processOrderData = (
   client: Client,
-  rawHistory: History[],
+  rawOrders: Order[],
 ): ChartData[] => {
-  const uniqueOrders = rawHistory.filter(
-    (item, index, self) =>
-      index === self.findIndex((t) => t.order_id === item.order_id),
-  );
-
-  const formattedData: ChartData[] = uniqueOrders.map((item) => ({
-    ...item,
-    formattedDate: new Date(item.changed_at).toLocaleDateString("pt-BR"),
+  const finalData: ChartData[] = rawOrders.map((order) => ({
+    id: order._id,
+    date: order.order_date,
+    formattedDate: new Date(order.order_date).toLocaleDateString("pt-BR"),
+    value: order.total_amount,
   }));
 
-  const today = new Date();
-  const todayFormatted = today.toLocaleDateString("pt-BR");
+  const firstOrderDate = new Date(rawOrders[0].order_date);
+  const clientCreationDate = new Date(client.created_at);
 
-  const rawCreatedAt = (client as any).created_at
-    ? new Date((client as any).created_at)
-    : new Date();
-  const createdAtFormatted = rawCreatedAt.toLocaleDateString("pt-BR");
-
-  const finalData: ChartData[] = [];
-
-  finalData.push({
-    _id: "start_node",
-    client_id: client._id,
-    previous_status: "SUCCESS",
-    new_status: "SUCCESS",
-    order_value: 0,
-    changed_at: rawCreatedAt.toISOString(),
-    order_id: "start_node",
-    formattedDate: createdAtFormatted,
-  });
-
-  finalData.push(...formattedData);
-
-  const hasBoughtToday = formattedData.some(
-    (item) => item.formattedDate === todayFormatted,
-  );
-
-  if (!hasBoughtToday) {
-    finalData.push({
-      _id: "end_node",
-      client_id: client._id,
-      previous_status: "SUCCESS",
-      new_status: "SUCCESS",
-      order_value: 0,
-      changed_at: today.toISOString(),
-      order_id: "end_node",
-      formattedDate: todayFormatted,
+  if (clientCreationDate < firstOrderDate) {
+    finalData.unshift({
+      id: "client_creation",
+      date: client.created_at,
+      formattedDate: new Date(client.created_at).toLocaleDateString("pt-BR"),
+      value: 0,
     });
   }
 
   finalData.sort(
-    (a, b) =>
-      new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime(),
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   return finalData;

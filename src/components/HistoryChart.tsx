@@ -6,18 +6,28 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import type { History } from "../interfaces/history.interface";
 
-export interface ChartData extends History {
+export interface ChartData {
+  id: string;
+  date: string;
   formattedDate: string;
+  value: number;
 }
 
 interface HistoryChartProps {
   data: ChartData[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
+// Tipagem forte exclusiva para o nosso componente de Tooltip,
+// evitando conflitos com a tipagem genérica da biblioteca recharts.
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload.length && payload[0].value !== undefined) {
     return (
       <div className="bg-card p-3 rounded-lg border border-muted/20 shadow-xl">
         <p className="text-muted text-xs mb-1">{label}</p>
@@ -44,13 +54,13 @@ export default function HistoryChart({ data }: HistoryChartProps) {
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
           <XAxis
-            dataKey="changed_at"
+            dataKey="date"
             scale="point"
             padding={{ left: 0, right: 20 }}
             stroke="#94a3b8"
             tick={{ fill: "#94a3b8", fontSize: 12 }}
             tickMargin={10}
-            tickFormatter={(value) =>
+            tickFormatter={(value: string) =>
               new Date(value).toLocaleDateString("pt-BR")
             }
             label={{
@@ -61,10 +71,10 @@ export default function HistoryChart({ data }: HistoryChartProps) {
             }}
           />
           <YAxis
-            dataKey="order_value"
+            dataKey="value"
             stroke="#94a3b8"
             tick={{ fill: "#94a3b8", fontSize: 12 }}
-            tickFormatter={(value) => `R$ ${value}`}
+            tickFormatter={(value: number) => `R$ ${value}`}
             width={80}
             label={{
               value: "Gasto",
@@ -83,7 +93,7 @@ export default function HistoryChart({ data }: HistoryChartProps) {
           />
           <Line
             type="monotone"
-            dataKey="order_value"
+            dataKey="value"
             stroke="var(--color-primary)"
             strokeWidth={3}
             dot={{ r: 5, fill: "var(--color-primary)", strokeWidth: 0 }}

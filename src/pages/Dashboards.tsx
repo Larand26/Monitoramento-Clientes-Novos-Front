@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom"; // Hook para capturar o estado da rota
+import { useLocation } from "react-router-dom";
 
 import Layout from "../components/Layout";
 import InputSearchClients from "../components/InputSearchClients";
@@ -7,23 +7,23 @@ import HistoryChart, { type ChartData } from "../components/HistoryChart";
 
 import type { Client } from "../interfaces/client.interface";
 
-import { getHistory } from "../apis/history";
-import { getClients } from "../apis/clients"; // <-- Importação restaurada
+import { getOrders } from "../apis/orders";
+import { getClients } from "../apis/clients";
 import * as utils from "../utils/utils";
-import { processHistoryData } from "../utils/dashboardLogic"; // Importa a lógica isolada
+import { processOrderData } from "../utils/dashboardLogic";
 
 export default function Dashboards() {
   const [clients, setClients] = useState<Client[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [historyData, setHistoryData] = useState<ChartData[]>([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
 
   const location = useLocation();
 
   useEffect(() => {
     if (location.state?.client) {
-      handleGetHistoryClients(location.state.client);
+      handleGetClientOrders(location.state.client);
     }
   }, [location.state?.client]);
 
@@ -81,20 +81,19 @@ export default function Dashboards() {
     }
   };
 
-  const handleGetHistoryClients = async (client: Client) => {
+  const handleGetClientOrders = async (client: Client) => {
     try {
-      const response = await getHistory({
-        id: client._id,
-        id_type: "_id",
+      const response = await getOrders({
+        client_id: client._id,
+        limit: 1000,
       });
 
-      // A mágica do Clean Code: Toda a formatação e injeção de nós está encapsulada!
-      const finalData = processHistoryData(client, response.data);
+      const finalData = processOrderData(client, response.data);
 
-      setHistoryData(finalData);
+      setChartData(finalData);
       setSelectedClient(client);
     } catch (error) {
-      console.error("Error fetching history:", error);
+      console.error("Error fetching orders:", error);
     }
   };
 
@@ -120,18 +119,18 @@ export default function Dashboards() {
           searchQuery={searchQuery}
           onchange={setSearchQuery}
           onSearch={handleSearch}
-          onGetHistory={handleGetHistoryClients}
+          onGetHistory={handleGetClientOrders}
           isClientSelected={!!selectedClient}
         />
 
         <div
           className={`flex-1 w-full mt-20 transition-all duration-1000 ease-in-out ${
-            selectedClient && historyData.length > 0
+            selectedClient && chartData.length > 0
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-10 pointer-events-none absolute"
           }`}
         >
-          <HistoryChart data={historyData} />
+          <HistoryChart data={chartData} />
         </div>
       </div>
     </Layout>
