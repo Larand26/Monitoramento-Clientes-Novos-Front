@@ -14,7 +14,7 @@ interface ResponseData {
 }
 
 interface filterGetClients {
-  status?: "IN_CRM" | "LOST" | "SUCCESS";
+  status?: "IN_CRM" | "LOST" | "SUCCESS" | "FREEZE";
   cnpj?: string;
   created_start?: string;
   created_end?: string;

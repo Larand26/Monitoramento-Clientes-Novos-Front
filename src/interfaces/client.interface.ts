@@ -7,7 +7,7 @@ export interface Client {
   cnpj: string;
   magento_order_ids: string[];
   store_order_ids: string[];
-  status: "IN_CRM" | "LOST" | "SUCCESS";
+  status: "IN_CRM" | "LOST" | "SUCCESS" | "FREEZE";
   created_at: string;
   updated_at: string;
   projected_profit?: number;
