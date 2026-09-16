@@ -25,6 +25,7 @@ interface filterGetClients {
   page?: number;
   limit?: number;
   store_id?: string;
+  min_orders?: number;
 }
 
 export async function getClients(

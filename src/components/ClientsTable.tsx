@@ -1,9 +1,11 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import type { Client } from "../interfaces/client.interface";
-import FlagStatus from "./FlagStatus";
 import EditClientModal from "./EditClientModal";
-import * as utils from "../utils/utils";
+import ClientTableRow from "./ClientTableRow";
+import AdvancedFiltersModal, {
+  type AdvancedFilters,
+} from "./AdvancedFiltersModal";
 import { useAppStore } from "../store/useAppStore";
 import { updateClient } from "../apis/clients";
 
@@ -16,7 +18,8 @@ interface ClientsTableProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSearchSubmit: () => void;
-  onAddClientClick: () => void; // <-- Nova propriedade
+  onAddClientClick: () => void;
+  onApplyAdvancedFilters: (filters: AdvancedFilters) => void;
   isLoading?: boolean;
   onRefreshData?: () => void;
 }
@@ -30,18 +33,22 @@ export default function ClientsTable({
   searchQuery,
   onSearchChange,
   onSearchSubmit,
-  onAddClientClick, // <-- Recebendo a função
+  onAddClientClick,
+  onApplyAdvancedFilters,
   isLoading,
   onRefreshData,
 }: ClientsTableProps) {
   const sellers = useAppStore((state) => state.sellers);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<AdvancedFilters>({});
 
   const handleEditClick = (client: Client) => {
     setEditingClient(client);
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
   const handleSaveClient = async (updatedClient: Client) => {
@@ -55,7 +62,7 @@ export default function ClientsTable({
       await updateClient(updatedClient._id, clientData);
 
       toast.success("Cliente atualizado com sucesso!");
-      setIsModalOpen(false);
+      setIsEditModalOpen(false);
       setEditingClient(null);
 
       if (onRefreshData) {
@@ -67,10 +74,17 @@ export default function ClientsTable({
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
     setEditingClient(null);
   };
+
+  const handleApplyFilters = (filters: AdvancedFilters) => {
+    setActiveFilters(filters);
+    onApplyAdvancedFilters(filters);
+  };
+
+  const hasActiveFilters = Object.keys(activeFilters).length > 0;
 
   return (
     <div className="w-full flex flex-col bg-card rounded-xl border border-muted/20 shadow-xl overflow-hidden relative">
@@ -79,7 +93,6 @@ export default function ClientsTable({
           Base de Clientes
         </h2>
 
-        {/* Agrupamento do Input e do Botão de Adicionar */}
         <div className="flex items-center gap-3">
           <div className="relative w-full max-w-[300px]">
             <input
@@ -110,6 +123,35 @@ export default function ClientsTable({
               />
             </svg>
           </div>
+
+          <button
+            onClick={() => setIsFilterModalOpen(true)}
+            className={`relative px-3 py-1.5 cursor-pointer rounded-md text-sm font-medium transition-all duration-300 flex items-center gap-2 border ${
+              hasActiveFilters
+                ? "bg-primary/10 text-primary border-primary/50 hover:bg-primary/20"
+                : "bg-page text-muted border-muted/20 hover:text-main hover:bg-muted/10"
+            }`}
+            title="Filtros Avançados"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.576a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
+              />
+            </svg>
+            Filtros
+            {hasActiveFilters && (
+              <span className="w-2 h-2 rounded-full bg-primary absolute -top-1 -right-1"></span>
+            )}
+          </button>
 
           <button
             onClick={onAddClientClick}
@@ -148,6 +190,12 @@ export default function ClientsTable({
                 Vendedor
               </th>
               <th className="px-6 py-4 text-muted text-sm font-title uppercase tracking-wider text-center">
+                Atualização
+              </th>
+              <th className="px-6 py-4 text-muted text-sm font-title uppercase tracking-wider text-center">
+                Pedidos
+              </th>
+              <th className="px-6 py-4 text-muted text-sm font-title uppercase tracking-wider text-center">
                 Status
               </th>
               <th className="px-6 py-4 text-muted text-sm font-title uppercase tracking-wider text-center">
@@ -160,7 +208,7 @@ export default function ClientsTable({
             {isLoading ? (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={7}
                   className="px-6 py-20 text-center text-muted text-sm"
                 >
                   <span className="text-lg font-medium animate-pulse">
@@ -170,54 +218,21 @@ export default function ClientsTable({
               </tr>
             ) : clients.length > 0 ? (
               clients.map((client) => (
-                <tr
+                <ClientTableRow
                   key={client._id}
-                  className="hover:bg-muted/5 transition-colors duration-200 group"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-main text-sm font-medium">
-                    {utils.removeFirstsNubersFromName(client.name)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-muted text-sm">
-                    {utils.formatCNPJ(client.cnpj)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className="text-main">
-                      {client.seller_id
-                        ? sellers[client.seller_id] || "Desconhecido"
-                        : "Não atribuído"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                    <FlagStatus status={client.status} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <button
-                      onClick={() => handleEditClick(client)}
-                      className="p-2 rounded-md text-muted hover:text-primary hover:bg-primary/10 transition-colors duration-200"
-                      title="Editar Cliente"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-                        />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
+                  client={client}
+                  sellerName={
+                    client.seller_id
+                      ? sellers[client.seller_id] || "Desconhecido"
+                      : "Não atribuído"
+                  }
+                  onEdit={handleEditClick}
+                />
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={7}
                   className="px-6 py-12 text-center text-muted text-sm"
                 >
                   Nenhum cliente encontrado.
@@ -254,10 +269,17 @@ export default function ClientsTable({
       </div>
 
       <EditClientModal
-        isOpen={isModalOpen}
+        isOpen={isEditModalOpen}
         clientData={editingClient}
-        onClose={handleCloseModal}
+        onClose={handleCloseEditModal}
         onSave={handleSaveClient}
+      />
+
+      <AdvancedFiltersModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        currentFilters={activeFilters}
       />
     </div>
   );
