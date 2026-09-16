@@ -6,6 +6,7 @@ import ClientTableRow from "./ClientTableRow";
 import AdvancedFiltersModal, {
   type AdvancedFilters,
 } from "./AdvancedFiltersModal";
+import ExportClientsModal from "./ExportClientsModal";
 import { useAppStore } from "../store/useAppStore";
 import { updateClient } from "../apis/clients";
 
@@ -45,6 +46,8 @@ export default function ClientsTable({
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<AdvancedFilters>({});
+
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const handleEditClick = (client: Client) => {
     setEditingClient(client);
@@ -154,8 +157,30 @@ export default function ClientsTable({
           </button>
 
           <button
+            onClick={() => setIsExportModalOpen(true)}
+            className="px-3 py-1.5 cursor-pointer rounded-md bg-page text-muted border border-muted/20 hover:text-main hover:bg-muted/10 transition-all duration-300 flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+            title="Exportar Dados"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+              />
+            </svg>
+            Exportar
+          </button>
+
+          <button
             onClick={onAddClientClick}
-            className="px-4 py-1.5 cursor-pointer rounded-md bg-page text-white text-sm font-medium hover:bg-primary/90 hover:shadow-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+            className="px-4 py-1.5 cursor-pointer rounded-md bg-primary text-page text-sm font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -280,6 +305,13 @@ export default function ClientsTable({
         onClose={() => setIsFilterModalOpen(false)}
         onApplyFilters={handleApplyFilters}
         currentFilters={activeFilters}
+      />
+
+      <ExportClientsModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        currentFilters={activeFilters}
+        searchQuery={searchQuery}
       />
     </div>
   );

@@ -111,3 +111,23 @@ export async function updateClient(
     throw error;
   }
 }
+
+export async function exportClientsData(filters: any): Promise<Blob> {
+  try {
+    const response = await axios.post(
+      `${config.api.host}/api/v1/export-clients`,
+      filters,
+      {
+        headers: {
+          Authorization: `Bearer ${config.api.token}`,
+          "Content-Type": "application/json",
+        },
+        responseType: "blob", // Essencial para lidar com arquivos (Excel/PDF)
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting clients:", error);
+    throw error;
+  }
+}
