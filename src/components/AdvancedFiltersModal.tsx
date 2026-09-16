@@ -9,6 +9,8 @@ export interface AdvancedFilters {
   updated_end?: string;
   seller_id?: string;
   min_orders?: number;
+  status?: string;
+  min_avg_days_between_purchases?: number;
 }
 
 interface AdvancedFiltersModalProps {
@@ -18,10 +20,8 @@ interface AdvancedFiltersModalProps {
   currentFilters?: AdvancedFilters;
 }
 
-// Função auxiliar para evitar problemas de fuso horário (Timezone) ao montar o calendário
 const parseDateString = (dateStr?: string): Date | null => {
   if (!dateStr) return null;
-  // Adiciona T00:00:00 para forçar a leitura na meia-noite local, evitando que o dia volte 1 pra trás
   return new Date(`${dateStr}T00:00:00`);
 };
 
@@ -52,8 +52,12 @@ export default function AdvancedFiltersModal({
   ]);
 
   const [sellerId, setSellerId] = useState(currentFilters.seller_id || "");
+  const [status, setStatus] = useState(currentFilters.status || "");
   const [minOrders, setMinOrders] = useState<number | "">(
     currentFilters.min_orders || "",
+  );
+  const [minAvgDays, setMinAvgDays] = useState<number | "">(
+    currentFilters.min_avg_days_between_purchases || "",
   );
 
   if (!isOpen) return null;
@@ -72,7 +76,10 @@ export default function AdvancedFiltersModal({
     if (uEnd) filters.updated_end = uEnd;
 
     if (sellerId) filters.seller_id = sellerId;
+    if (status) filters.status = status;
     if (minOrders !== "") filters.min_orders = Number(minOrders);
+    if (minAvgDays !== "")
+      filters.min_avg_days_between_purchases = Number(minAvgDays);
 
     onApplyFilters(filters);
     onClose();
@@ -82,7 +89,9 @@ export default function AdvancedFiltersModal({
     setCreatedRange([null, null]);
     setUpdatedRange([null, null]);
     setSellerId("");
+    setStatus("");
     setMinOrders("");
+    setMinAvgDays("");
     onApplyFilters({});
     onClose();
   };
@@ -120,24 +129,39 @@ export default function AdvancedFiltersModal({
         </div>
 
         <div className="p-6 flex flex-col gap-5 overflow-y-auto max-h-[70vh] custom-scrollbar">
-          {/* Seção Vendedor */}
-          <div>
-            <label className={labelStyle}>Vendedor</label>
-            <select
-              value={sellerId}
-              onChange={(e) => setSellerId(e.target.value)}
-              className={inputStyle}
-            >
-              <option value="">Todos os vendedores</option>
-              {Object.entries(sellers).map(([id, name]) => (
-                <option key={id} value={id}>
-                  {name}
-                </option>
-              ))}
-            </select>
+          {/* Primeira Linha: Vendedor e Status */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelStyle}>Vendedor</label>
+              <select
+                value={sellerId}
+                onChange={(e) => setSellerId(e.target.value)}
+                className={inputStyle}
+              >
+                <option value="">Todos</option>
+                {Object.entries(sellers).map(([id, name]) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelStyle}>Status</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className={inputStyle}
+              >
+                <option value="">Todos</option>
+                <option value="SUCCESS">Sucesso</option>
+                <option value="IN_CRM">No CRM</option>
+                <option value="FREEZE">Esfriando</option>
+                <option value="LOST">Perdido</option>
+              </select>
+            </div>
           </div>
 
-          {/* Seção Data de Criação (Substituído pelo novo componente) */}
           <div className="z-20">
             <InputDateRange
               label="Data de Criação"
@@ -147,7 +171,6 @@ export default function AdvancedFiltersModal({
             />
           </div>
 
-          {/* Seção Data de Atualização (Substituído pelo novo componente) */}
           <div className="z-10">
             <InputDateRange
               label="Data de Atualização"
@@ -157,21 +180,45 @@ export default function AdvancedFiltersModal({
             />
           </div>
 
-          {/* Seção Total de Pedidos */}
-          <div>
-            <label className={labelStyle}>Mínimo de Pedidos</label>
-            <input
-              type="number"
-              min="0"
-              placeholder="Ex: 5"
-              value={minOrders}
-              onChange={(e) =>
-                setMinOrders(
-                  e.target.value !== "" ? Number(e.target.value) : "",
-                )
-              }
-              className={inputStyle}
-            />
+          {/* Última Linha: Métricas Numéricas */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelStyle} title="Mínimo de Pedidos">
+                Mín. de Pedidos
+              </label>
+              <input
+                type="number"
+                min="0"
+                placeholder="Ex: 5"
+                value={minOrders}
+                onChange={(e) =>
+                  setMinOrders(
+                    e.target.value !== "" ? Number(e.target.value) : "",
+                  )
+                }
+                className={inputStyle}
+              />
+            </div>
+            <div>
+              <label
+                className={labelStyle}
+                title="Mínimo de Dias Médios entre Compras"
+              >
+                Mín. Dias (Média)
+              </label>
+              <input
+                type="number"
+                min="0"
+                placeholder="Ex: 30"
+                value={minAvgDays}
+                onChange={(e) =>
+                  setMinAvgDays(
+                    e.target.value !== "" ? Number(e.target.value) : "",
+                  )
+                }
+                className={inputStyle}
+              />
+            </div>
           </div>
         </div>
 
@@ -180,7 +227,7 @@ export default function AdvancedFiltersModal({
             onClick={handleClear}
             className="px-4 py-2 rounded-md bg-transparent text-muted text-sm font-medium hover:text-main hover:bg-muted/10 transition-colors"
           >
-            Limpar Filtros
+            Limpar
           </button>
           <button
             onClick={handleApply}

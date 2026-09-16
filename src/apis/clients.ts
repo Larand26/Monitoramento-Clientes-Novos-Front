@@ -26,6 +26,7 @@ interface filterGetClients {
   limit?: number;
   store_id?: string;
   min_orders?: number;
+  avg_days_between_purchases?: number;
 }
 
 export async function getClients(

@@ -7,10 +7,11 @@ import type { Client } from "../interfaces/client.interface";
 import type { AdvancedFilters } from "../components/AdvancedFiltersModal";
 import * as utils from "../utils/utils";
 
-// Estende os parâmetros originais da API para incluir o novo filtro de pedidos (min_orders)
+// Estende os parâmetros originais da API para incluir os novos filtros
 // sem quebrar a tipagem estrita e sem precisar modificar clients.ts agora.
 type ClientApiParams = Parameters<typeof getClients>[0] & {
   min_orders?: number;
+  min_avg_days_between_purchases?: number;
 };
 
 export default function Clients() {
@@ -51,9 +52,16 @@ export default function Clients() {
       if (filters.updated_end) baseParams.updated_end = filters.updated_end;
       if (filters.min_orders !== undefined)
         baseParams.min_orders = filters.min_orders;
+      if (filters.min_avg_days_between_purchases !== undefined) {
+        baseParams.min_avg_days_between_purchases =
+          filters.min_avg_days_between_purchases;
+      }
 
-      // Realizando um cast seguro para garantir que a tipagem não quebre caso o seller_id
-      // no banco seja uma string (ObjectId) em vez de um number como tipado originalmente.
+      if (filters.status) {
+        baseParams.status = filters.status as ClientApiParams["status"];
+      }
+
+      // Realizando um cast seguro para garantir que a tipagem não quebre
       if (filters.seller_id) {
         baseParams.seller_id = filters.seller_id as unknown as number;
       }
@@ -73,7 +81,6 @@ export default function Clients() {
         if (activeType === "cnpj") {
           params.cnpj = utils.formatCnpjforApi(query);
         } else {
-          // Atribuição tipada de forma segura
           Object.assign(params, { [activeType]: query });
         }
 
