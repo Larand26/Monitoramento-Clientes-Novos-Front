@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAppStore } from "../store/useAppStore";
+import InputDateRange, { type DateRange } from "./InputDateRange";
 
 export interface AdvancedFilters {
   created_start?: string;
@@ -17,6 +18,21 @@ interface AdvancedFiltersModalProps {
   currentFilters?: AdvancedFilters;
 }
 
+// Função auxiliar para evitar problemas de fuso horário (Timezone) ao montar o calendário
+const parseDateString = (dateStr?: string): Date | null => {
+  if (!dateStr) return null;
+  // Adiciona T00:00:00 para forçar a leitura na meia-noite local, evitando que o dia volte 1 pra trás
+  return new Date(`${dateStr}T00:00:00`);
+};
+
+const formatDateToString = (date: Date | null): string | undefined => {
+  if (!date) return undefined;
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 export default function AdvancedFiltersModal({
   isOpen,
   onClose,
@@ -25,18 +41,16 @@ export default function AdvancedFiltersModal({
 }: AdvancedFiltersModalProps) {
   const sellers = useAppStore((state) => state.sellers);
 
-  const [createdStart, setCreatedStart] = useState(
-    currentFilters.created_start || "",
-  );
-  const [createdEnd, setCreatedEnd] = useState(
-    currentFilters.created_end || "",
-  );
-  const [updatedStart, setUpdatedStart] = useState(
-    currentFilters.updated_start || "",
-  );
-  const [updatedEnd, setUpdatedEnd] = useState(
-    currentFilters.updated_end || "",
-  );
+  const [createdRange, setCreatedRange] = useState<DateRange>([
+    parseDateString(currentFilters.created_start),
+    parseDateString(currentFilters.created_end),
+  ]);
+
+  const [updatedRange, setUpdatedRange] = useState<DateRange>([
+    parseDateString(currentFilters.updated_start),
+    parseDateString(currentFilters.updated_end),
+  ]);
+
   const [sellerId, setSellerId] = useState(currentFilters.seller_id || "");
   const [minOrders, setMinOrders] = useState<number | "">(
     currentFilters.min_orders || "",
@@ -46,10 +60,17 @@ export default function AdvancedFiltersModal({
 
   const handleApply = () => {
     const filters: AdvancedFilters = {};
-    if (createdStart) filters.created_start = createdStart;
-    if (createdEnd) filters.created_end = createdEnd;
-    if (updatedStart) filters.updated_start = updatedStart;
-    if (updatedEnd) filters.updated_end = updatedEnd;
+
+    const cStart = formatDateToString(createdRange[0]);
+    const cEnd = formatDateToString(createdRange[1]);
+    if (cStart) filters.created_start = cStart;
+    if (cEnd) filters.created_end = cEnd;
+
+    const uStart = formatDateToString(updatedRange[0]);
+    const uEnd = formatDateToString(updatedRange[1]);
+    if (uStart) filters.updated_start = uStart;
+    if (uEnd) filters.updated_end = uEnd;
+
     if (sellerId) filters.seller_id = sellerId;
     if (minOrders !== "") filters.min_orders = Number(minOrders);
 
@@ -58,10 +79,8 @@ export default function AdvancedFiltersModal({
   };
 
   const handleClear = () => {
-    setCreatedStart("");
-    setCreatedEnd("");
-    setUpdatedStart("");
-    setUpdatedEnd("");
+    setCreatedRange([null, null]);
+    setUpdatedRange([null, null]);
     setSellerId("");
     setMinOrders("");
     onApplyFilters({});
@@ -118,48 +137,24 @@ export default function AdvancedFiltersModal({
             </select>
           </div>
 
-          {/* Seção Data de Criação */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelStyle}>Criado a partir de</label>
-              <input
-                type="date"
-                value={createdStart}
-                onChange={(e) => setCreatedStart(e.target.value)}
-                className={inputStyle}
-              />
-            </div>
-            <div>
-              <label className={labelStyle}>Criado até</label>
-              <input
-                type="date"
-                value={createdEnd}
-                onChange={(e) => setCreatedEnd(e.target.value)}
-                className={inputStyle}
-              />
-            </div>
+          {/* Seção Data de Criação (Substituído pelo novo componente) */}
+          <div className="z-20">
+            <InputDateRange
+              label="Data de Criação"
+              value={createdRange}
+              onChange={setCreatedRange}
+              placeholder="Criado entre..."
+            />
           </div>
 
-          {/* Seção Data de Atualização */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelStyle}>Atualizado a partir de</label>
-              <input
-                type="date"
-                value={updatedStart}
-                onChange={(e) => setUpdatedStart(e.target.value)}
-                className={inputStyle}
-              />
-            </div>
-            <div>
-              <label className={labelStyle}>Atualizado até</label>
-              <input
-                type="date"
-                value={updatedEnd}
-                onChange={(e) => setUpdatedEnd(e.target.value)}
-                className={inputStyle}
-              />
-            </div>
+          {/* Seção Data de Atualização (Substituído pelo novo componente) */}
+          <div className="z-10">
+            <InputDateRange
+              label="Data de Atualização"
+              value={updatedRange}
+              onChange={setUpdatedRange}
+              placeholder="Atualizado entre..."
+            />
           </div>
 
           {/* Seção Total de Pedidos */}
