@@ -5,6 +5,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  Brush,
 } from "recharts";
 
 export interface ChartData {
@@ -18,8 +19,6 @@ interface HistoryChartProps {
   data: ChartData[];
 }
 
-// Tipagem forte exclusiva para o nosso componente de Tooltip,
-// evitando conflitos com a tipagem genérica da biblioteca recharts.
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ value: number }>;
@@ -28,9 +27,14 @@ interface CustomTooltipProps {
 
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length && payload[0].value !== undefined) {
+    // Formata a data (label) no Tooltip se ela vier no formato ISO do eixo X
+    const displayLabel = label?.includes("T")
+      ? new Date(label).toLocaleDateString("pt-BR")
+      : label;
+
     return (
       <div className="bg-card p-3 rounded-lg border border-muted/20 shadow-xl">
-        <p className="text-muted text-xs mb-1">{label}</p>
+        <p className="text-muted text-xs mb-1">{displayLabel}</p>
         <p className="text-main font-semibold text-sm">
           {new Intl.NumberFormat("pt-BR", {
             style: "currency",
@@ -60,6 +64,7 @@ export default function HistoryChart({ data }: HistoryChartProps) {
             stroke="#94a3b8"
             tick={{ fill: "#94a3b8", fontSize: 12 }}
             tickMargin={10}
+            minTickGap={30}
             tickFormatter={(value: string) =>
               new Date(value).toLocaleDateString("pt-BR")
             }
@@ -103,6 +108,17 @@ export default function HistoryChart({ data }: HistoryChartProps) {
               stroke: "var(--color-card)",
               strokeWidth: 2,
             }}
+          />
+
+          {/* Scroll Interativo (Mini-mapa) */}
+          <Brush
+            dataKey="date"
+            height={30}
+            stroke="#94a3b8"
+            fill="transparent"
+            tickFormatter={(value: string) =>
+              new Date(value).toLocaleDateString("pt-BR")
+            }
           />
         </LineChart>
       </ResponsiveContainer>

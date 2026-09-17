@@ -6,25 +6,34 @@ export const processOrderData = (
   client: Client,
   rawOrders: Order[],
 ): ChartData[] => {
-  const finalData: ChartData[] = rawOrders.map((order) => ({
-    id: order._id,
-    date: order.order_date,
-    formattedDate: new Date(order.order_date).toLocaleDateString("pt-BR"),
-    value: order.total_amount,
-  }));
+  // 1. Agrupa pedidos feitos no mesmo dia e corrige o fuso horário (UTC -> Local)
+  const groupedOrders = rawOrders.reduce(
+    (acc, order) => {
+      const isoDate = order.order_date.split("T")[0];
+      const [year, month, day] = isoDate.split("-").map(Number);
 
-  const firstOrderDate = new Date(rawOrders[0].order_date);
-  const clientCreationDate = new Date(client.created_at);
+      const localDate = new Date(year, month - 1, day);
+      const formattedDate = localDate.toLocaleDateString("pt-BR");
 
-  if (clientCreationDate < firstOrderDate) {
-    finalData.unshift({
-      id: "client_creation",
-      date: client.created_at,
-      formattedDate: new Date(client.created_at).toLocaleDateString("pt-BR"),
-      value: 0,
-    });
-  }
+      if (!acc[formattedDate]) {
+        acc[formattedDate] = {
+          id: order._id,
+          date: localDate.toISOString(),
+          formattedDate: formattedDate,
+          value: 0,
+        };
+      }
 
+      acc[formattedDate].value += order.total_amount;
+
+      return acc;
+    },
+    {} as Record<string, ChartData>,
+  );
+
+  const finalData: ChartData[] = Object.values(groupedOrders);
+
+  // 2. Ordenação cronológica para garantir o desenho correto da linha no gráfico
   finalData.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
