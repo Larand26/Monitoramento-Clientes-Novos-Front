@@ -88,7 +88,7 @@ export default function Dashboards() {
         limit: 1000,
       });
 
-      const finalData = processOrderData(client, response.data);
+      const finalData = processOrderData(response.data);
 
       setChartData(finalData);
       setSelectedClient(client);
