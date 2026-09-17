@@ -1,11 +1,7 @@
-import type { Client } from "../interfaces/client.interface";
 import type { Order } from "../interfaces/order.interface";
 import type { ChartData } from "../components/HistoryChart";
 
-export const processOrderData = (
-  client: Client,
-  rawOrders: Order[],
-): ChartData[] => {
+export const processOrderData = (rawOrders: Order[]): ChartData[] => {
   // 1. Agrupa pedidos feitos no mesmo dia e corrige o fuso horário (UTC -> Local)
   const groupedOrders = rawOrders.reduce(
     (acc, order) => {
